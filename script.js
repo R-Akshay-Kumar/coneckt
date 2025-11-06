@@ -1,41 +1,83 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
+
+    // AUTH SECTION (LOGIN + SIGNUP)
     const authForm = document.getElementById("auth-form");
+    const formContainer = document.getElementById("form-container");
+    const formToggleLink = document.getElementById("form-toggle-link");
 
     if (authForm) {
-        authForm.addEventListener("submit", (e) => {
+        authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            window.location.href = "chat.html";
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const mode = formContainer.dataset.mode;
+
+            if (mode === "signup") {
+                const fullName = document.getElementById("full-name").value;
+
+                if (!fullName || !email || !password) {
+                    alert("⚠️ Please fill all fields.");
+                    return;
+                }
+
+                const res = await fetch("http://localhost:5000/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ full_name: fullName, email, password })
+                });
+
+                const data = await res.json();
+                alert(data.message);
+                formToggleLink.click();
+                return;
+            }
+
+            if (mode === "login") {
+                const res = await fetch("http://localhost:5000/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("user_id", data.user_id);
+                    localStorage.setItem("user_name", data.user_name);
+                    window.location.href = "chat.html";
+                } else {
+                    alert(data.message);
+                }
+            }
         });
 
-        const toggleLink = document.getElementById("form-toggle-link");
-        if (toggleLink) {
-            const formContainer = document.getElementById("form-container");
+        // Toggle between Login and Signup modes
+        formToggleLink.addEventListener("click", (e) => {
+            e.preventDefault();
+
             const formTitle = document.getElementById("form-title");
             const submitBtn = document.getElementById("submit-btn");
             const togglePrompt = document.getElementById("toggle-prompt");
 
-            toggleLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                const currentMode = formContainer.dataset.mode;
-                
-                if (currentMode === "login") {
-                    formContainer.dataset.mode = "signup";
-                    formTitle.textContent = "Create Account";
-                    submitBtn.textContent = "Sign Up";
-                    togglePrompt.textContent = "Already have an account?";
-                    toggleLink.textContent = "Login here";
-                } else {
-                    formContainer.dataset.mode = "login";
-                    formTitle.textContent = "Welcome Back";
-                    submitBtn.textContent = "Login";
-                    togglePrompt.textContent = "Don't have an account?";
-                    toggleLink.textContent = "Sign up here";
-                }
-            });
-        }
+            if (formContainer.dataset.mode === "login") {
+                formContainer.dataset.mode = "signup";
+                formTitle.textContent = "Create Account";
+                submitBtn.textContent = "Sign Up";
+                togglePrompt.textContent = "Already have an account?";
+                formToggleLink.textContent = "Login here";
+            } else {
+                formContainer.dataset.mode = "login";
+                formTitle.textContent = "Welcome Back";
+                submitBtn.textContent = "Login";
+                togglePrompt.textContent = "Don't have an account?";
+                formToggleLink.textContent = "Sign up here";
+            }
+        });
     }
 
+    // -------------------- CHAT PAGE SECTION --------------------
     const messageForm = document.getElementById("message-form");
     if (messageForm) {
         const messageInput = document.getElementById("message-input");
@@ -77,17 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     groupList.style.display = "none";
                     listPanelTitle.textContent = "Chats";
                     const firstChat = contactList.querySelector(".contact-item");
-                    if (firstChat) {
-                        firstChat.click();
-                    }
+                    if (firstChat) firstChat.click();
                 } else if (tab === "groups") {
                     contactList.style.display = "none";
                     groupList.style.display = "block";
                     listPanelTitle.textContent = "Groups";
                     const firstGroup = groupList.querySelector(".contact-item");
-                    if (firstGroup) {
-                        firstGroup.click();
-                    }
+                    if (firstGroup) firstGroup.click();
                 }
             });
         });
@@ -120,41 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
             messageDiv.appendChild(textP);
             messageDiv.appendChild(timestampSpan);
             messageList.appendChild(messageDiv);
-        }
-
-        function switchChat(item) {
-            document.querySelectorAll(".contact-item").forEach(i => {
-                i.classList.remove("active");
-            });
-            item.classList.add("active");
-            const newChatName = item.dataset.name;
-            const initialMessage = item.dataset.initialMessage;
-            chatWithName.textContent = newChatName;
-            messageList.innerHTML = `
-                <div class="message received">
-                    <p>${initialMessage}</p>
-                    <span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-            `;
-        }
-
-        contactList.addEventListener("click", (event) => {
-            const clickedContact = event.target.closest(".contact-item");
-            if (clickedContact) {
-                switchChat(clickedContact);
-            }
-        });
-
-        groupList.addEventListener("click", (event) => {
-            const clickedGroup = event.target.closest(".contact-item");
-            if (clickedGroup) {
-                switchChat(clickedGroup);
-            }
-        });
-
-        const firstActiveChat = contactList.querySelector(".contact-item.active");
-        if (firstActiveChat) {
-            switchChat(firstActiveChat);
         }
     }
 });
