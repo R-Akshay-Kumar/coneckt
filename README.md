@@ -1,95 +1,62 @@
-# Project: coneckt – Internal Chat Application
+# coneckt – Internal Communication Chat Platform
 
-## Overview
-
-**coneckt** is a simple yet modern internal chat application I created to help teams communicate and collaborate more efficiently.  
-
-The idea is inspired by tools like **Microsoft Lync** and **Slack**, but this version is completely built from scratch using **HTML**, **CSS**, and **JavaScript**.  
+coneckt is a real-time internal communication platform designed for team collaboration, inspired by tools like Slack and Microsoft Lync.  
+The project is being built step-by-step, following a full-stack development workflow.
 
 ---
 
-## Features Implemented
+## Project Progress (Phased Development Approach)
 
-### Login & Signup Page
-
-- A dedicated `login.html` page where users can either **log in** or **create a new account**.
-
-- JavaScript is used to **toggle between Login and Sign Up** modes smoothly.
-
-- Includes a **simulated login** that redirects users to the main chat interface (`chat.html`) after submitting the form.
-
----
-
-### Chat Application Interface
-
-- The main chat page follows a **three-column layout**, similar to popular chat tools:
-
-  1. **Navigation Bar:** A slim sidebar with icons for quick access to Chats and Groups.
-
-  2. **List Panel:** Displays either **individual chat contacts** or **group chats**. A **search bar** is included for future functionality.
-
-  3. **Chat Area:** The main section where messages are displayed.
+| Phase | Status | Description |
+|------|:------:|-------------|
+| Phase 1 |  Completed | Built complete UI using HTML, CSS & JavaScript (Login + Chat Interface) |
+| Phase 2 |  Completed | Implemented real user authentication using Node.js & MySQL (Signup + Login) |
+| Phase 3 |  In Progress | Add database-backed chat messaging (store + load chat history) |
+| Phase 4 |  Upcoming | Implement real-time messaging using Socket.io |
+| Phase 5 |  Upcoming | Rebuild frontend in React and deploy full-stack version |
 
 ---
 
-### Dynamic List Switching
+##  Tech Stack
 
-- Sidebar buttons toggle between **Chats** and **Groups**.
+### Frontend (Current)
+- HTML
+- CSS
+- JavaScript 
 
-- Each section displays relevant contacts or groups with names, avatars, and status indicators.
+### Backend
+- Node.js
+- Express.js
+- bcrypt (Password Encryption)
+- JSON Web Token (Authentication)
 
----
-
-### Search Bar
-
-- A **search bar** is added to the top of the list panel.
-
-- It’s currently UI-only but is ready for backend integration to support real searching in future updates.
-
----
-
-### User Profile & Logout
-
-- A **profile icon** is placed at the bottom of the navigation bar.
-
-- Clicking the profile shows a **dropdown menu** with options to:
-
-  - Change Name  
-
-  - Change Bio  
-
-  - Change Profile Photo  
-
-  - Logout  
-
-- The **Logout** option redirects the user back to `login.html`.
+### Database
+- MySQL (User & Message Data Storage)
 
 ---
 
-### Chat Functionality
+## Features Implemented So Far
 
-- Each chat starts with a few **custom sample messages** (for example, “Hi! This is Dheeraj.”).
+### Authentication System
+- User Signup (stores user details securely in MySQL)
+- User Login (JWT token based)
+- Form mode toggle: Login ↔ Signup
+- Fully functional from UI → Backend → Database
 
-- When the user sends a message, a **simulated reply** (“Hello!”) appears.
-
-- **Local avatar images** (`userDP.png`, `contactDP.png`, `groupDP.png`) are used to give the chat a more realistic look.
-
----
-
-## Future Improvements (Backend Integration)
-
-Here’s the plan for the next stages of development:
-
-- **Backend (Node.js):**  
-  To handle login/signup, authentication, and message storage.
-
-- **Database (MySQL):**  
-  To store user data, contacts, groups, and chat history.
-
-- **Real-Time Messaging (Socket.io):**  
-  To replace the current simulated replies with live, real-time messages between users.
-
-- **Frontend Upgrade (React.js):**  
-  To make the chat system more dynamic, responsive, and scalable.
+### UI Features (Phase 1)
+- Modern login page UI
+- Sidebar navigation (Chats / Groups)
+- Chat panel layout similar to Microsoft Lync
+- Message input & dynamic message rendering
+- User profile dropdown & Logout support
 
 ---
+
+## What’s Next (Phase 3)
+We will:
+- Store messages in the database
+- Load chat history when switching contacts
+- Replace the placeholder “Hello!” response
+
+Then we will enable real-time communication using **Socket.io**.
+
