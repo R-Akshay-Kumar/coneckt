@@ -52,4 +52,36 @@ app.post("/login", (req, res) => {
     });
 });
 
+// Save message
+app.post("/send-message", (req, res) => {
+    const { sender_id, receiver_id, message_text } = req.body;
+
+    db.query(
+        "INSERT INTO messages (sender_id, receiver_id, message_text) VALUES (?, ?, ?)",
+        [sender_id, receiver_id, message_text],
+        (err) => {
+            if (err) return res.status(500).json({ message: "Error saving message" });
+            res.json({ message: "Message Saved" });
+        }
+    );
+});
+
+// Load chat history
+app.get("/messages", (req, res) => {
+    const { sender_id, receiver_id } = req.query;
+
+    db.query(
+        `SELECT sender_id, receiver_id, message_text, timestamp 
+         FROM messages 
+         WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+         ORDER BY timestamp`,
+        [sender_id, receiver_id, receiver_id, sender_id],
+        (err, result) => {
+            if (err) return res.status(500).json({ message: "Error loading messages" });
+            res.json(result);
+        }
+    );
+});
+
+
 app.listen(5000, () => console.log("Server running on port 5000"));

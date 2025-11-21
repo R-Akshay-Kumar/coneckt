@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const fullName = document.getElementById("full-name").value;
 
                 if (!fullName || !email || !password) {
-                    alert("⚠️ Please fill all fields.");
+                    alert("Please fill all fields.");
                     return;
                 }
 
@@ -130,20 +130,52 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        messageForm.addEventListener("submit", (event) => {
+        async function switchChat(item) {
+            document.querySelectorAll(".contact-item").forEach(i => i.classList.remove("active"));
+            item.classList.add("active");
+
+            const receiverId = item.dataset.id;
+            const senderId = localStorage.getItem("user_id");
+
+            chatWithName.textContent = item.dataset.name;
+            chatWithName.dataset.id = receiverId;
+
+            const res = await fetch(`http://localhost:5000/messages?sender_id=${senderId}&receiver_id=${receiverId}`);
+            const messages = await res.json();
+
+            messageList.innerHTML = "";
+
+            messages.forEach(msg => {
+                createMessageElement(msg.message_text, msg.sender_id == senderId ? "sent" : "received");
+            });
+        }
+
+        contactList.addEventListener("click", (event) => {
+            const clickedContact = event.target.closest(".contact-item");
+            if (clickedContact) switchChat(clickedContact);
+        });
+
+        messageForm.addEventListener("submit", async (event) => {
             event.preventDefault();
             const messageText = messageInput.value.trim();
+            if (!messageText) return;
+                    
+            const senderId = localStorage.getItem("user_id");
+            const receiverId = chatWithName.dataset.id;
 
-            if (messageText !== "") {
-                createMessageElement(messageText, "sent");
-                messageInput.value = "";
-                messageList.scrollTop = messageList.scrollHeight;
+            createMessageElement(messageText, "sent");
+            messageInput.value = "";
+            messageList.scrollTop = messageList.scrollHeight;
 
-                setTimeout(() => {
-                    createMessageElement("Hello!", "received");
-                    messageList.scrollTop = messageList.scrollHeight;
-                }, 1000);
-            }
+            await fetch("http://localhost:5000/send-message", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    sender_id: senderId,
+                    receiver_id: receiverId,
+                    message_text: messageText
+                })
+            });
         });
 
         function createMessageElement(text, type) {
