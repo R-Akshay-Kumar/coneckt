@@ -47,7 +47,7 @@ export const createConversation = async (req: Request, res: Response) => {
     // This is a bit tricky with Prisma, we look for a conversation that has EXACTLY these two members
     const existingConversations = await prisma.conversation.findMany({
       where: {
-        isGroup: false,
+        type: 'DIRECT',
         AND: [
           { memberships: { some: { userId: currentUserId } } },
           { memberships: { some: { userId: targetUserId } } }
@@ -71,7 +71,7 @@ export const createConversation = async (req: Request, res: Response) => {
     // Create new 1:1 conversation
     const newConversation = await prisma.conversation.create({
       data: {
-        isGroup: false,
+        type: 'DIRECT',
         memberships: {
           create: [
             { userId: currentUserId, role: 'MEMBER' },

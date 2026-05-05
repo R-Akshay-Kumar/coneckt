@@ -121,7 +121,7 @@ const Sidebar: React.FC = () => {
           conversations.map((conv) => {
             // Simplistic way to get the 'other' user's name for 1:1 chats
             const otherMember = conv.memberships?.find(m => m.user?.id !== user?.id);
-            const chatName = conv.isGroup ? conv.name : (otherMember?.user?.name || 'Unknown User');
+            const chatName = conv.type === 'GROUP' ? conv.name : (otherMember?.user?.name || 'Unknown User');
             const isActive = activeConversation?.id === conv.id;
 
             return (

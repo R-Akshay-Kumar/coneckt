@@ -41,7 +41,7 @@ const ChatWindow: React.FC = () => {
     );
   }
 
-  const chatName = activeConversation.isGroup 
+  const chatName = activeConversation.type === 'GROUP' 
     ? activeConversation.name 
     : activeConversation.memberships?.find(m => m.user?.id !== user?.id)?.user?.name || 'Unknown User';
 

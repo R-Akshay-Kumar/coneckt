@@ -20,8 +20,14 @@ export const io = new Server(httpServer, {
 
 initializeSockets(io);
 
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+
 // Initialize Prisma
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({ adapter });
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -29,7 +29,7 @@ export interface Membership {
 
 export interface Conversation {
   id: string;
-  isGroup: boolean;
+  type: 'DIRECT' | 'GROUP';
   name: string | null;
   createdAt: string;
   updatedAt: string;
