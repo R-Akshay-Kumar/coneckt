@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const conversation_controller_1 = require("../controllers/conversation.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
 const router = (0, express_1.Router)();
+router.use(auth_middleware_1.requireAuth);
 router.get('/', conversation_controller_1.getConversations);
 router.post('/', conversation_controller_1.createConversation);
 router.get('/:id/messages', conversation_controller_1.getMessages);

@@ -3,6 +3,7 @@ import app from './app';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { initializeSockets } from './sockets';
 
 dotenv.config();
 
@@ -17,13 +18,7 @@ export const io = new Server(httpServer, {
   }
 });
 
-io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`);
-  
-  socket.on('disconnect', () => {
-    console.log(`User disconnected: ${socket.id}`);
-  });
-});
+initializeSockets(io);
 
 // Initialize Prisma
 export const prisma = new PrismaClient();

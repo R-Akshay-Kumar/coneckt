@@ -9,6 +9,7 @@ const app_1 = __importDefault(require("./app"));
 const socket_io_1 = require("socket.io");
 const dotenv_1 = __importDefault(require("dotenv"));
 const client_1 = require("@prisma/client");
+const sockets_1 = require("./sockets");
 dotenv_1.default.config();
 const PORT = process.env.PORT || 4000;
 const httpServer = (0, http_1.createServer)(app_1.default);
@@ -19,12 +20,7 @@ exports.io = new socket_io_1.Server(httpServer, {
         methods: ['GET', 'POST']
     }
 });
-exports.io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
-    socket.on('disconnect', () => {
-        console.log(`User disconnected: ${socket.id}`);
-    });
-});
+(0, sockets_1.initializeSockets)(exports.io);
 // Initialize Prisma
 exports.prisma = new client_1.PrismaClient();
 httpServer.listen(PORT, () => {
