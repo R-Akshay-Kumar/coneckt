@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, User as UserIcon } from 'lucide-react';
-import { User } from '../../types';
+import { Search, X } from 'lucide-react';
+import type { User } from '../../types';
 import { userService } from '../../services/user.service';
 import { chatService } from '../../services/chat.service';
 import { useChatStore } from '../../store/useChatStore';
