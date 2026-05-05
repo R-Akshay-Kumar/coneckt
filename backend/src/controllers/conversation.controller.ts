@@ -31,8 +31,70 @@ export const getConversations = async (req: Request, res: Response) => {
 };
 
 export const createConversation = async (req: Request, res: Response) => {
-  // TODO: Implement conversation creation (1:1 and Group)
-  res.status(201).json({ message: 'Create Conversation Endpoint' });
+  try {
+    const { targetUserId } = req.body;
+    const currentUserId = req.user!.id;
+
+    if (!targetUserId) {
+      return res.status(400).json({ error: 'targetUserId is required' });
+    }
+
+    if (targetUserId === currentUserId) {
+      return res.status(400).json({ error: 'Cannot create a conversation with yourself' });
+    }
+
+    // Check if a 1:1 conversation already exists between these two users
+    // This is a bit tricky with Prisma, we look for a conversation that has EXACTLY these two members
+    const existingConversations = await prisma.conversation.findMany({
+      where: {
+        isGroup: false,
+        AND: [
+          { memberships: { some: { userId: currentUserId } } },
+          { memberships: { some: { userId: targetUserId } } }
+        ]
+      },
+      include: {
+        memberships: {
+          include: { user: true }
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    if (existingConversations.length > 0) {
+      return res.status(200).json({ conversation: existingConversations[0] });
+    }
+
+    // Create new 1:1 conversation
+    const newConversation = await prisma.conversation.create({
+      data: {
+        isGroup: false,
+        memberships: {
+          create: [
+            { userId: currentUserId, role: 'MEMBER' },
+            { userId: targetUserId, role: 'MEMBER' }
+          ]
+        }
+      },
+      include: {
+        memberships: {
+          include: { user: true }
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    res.status(201).json({ conversation: newConversation });
+  } catch (error) {
+    console.error('Error creating conversation:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 export const getMessages = async (req: Request, res: Response) => {

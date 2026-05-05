@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useChatStore } from '../../store/useChatStore';
 import { chatService } from '../../services/chat.service';
 import { socketService } from '../../services/socket';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Plus } from 'lucide-react';
+import NewChatModal from './NewChatModal';
 
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuthStore();
   const { conversations, setConversations, activeConversation, setActiveConversation } = useChatStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -83,8 +85,32 @@ const Sidebar: React.FC = () => {
 
       {/* Conversations List */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 0' }}>
-        <div style={{ padding: '0 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
-          Recent Chats
+        <div style={{ 
+          padding: '0 1.5rem 0.5rem', 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
+            Recent Chats
+          </span>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            style={{ 
+              background: 'var(--bg-surface-elevated)', 
+              border: 'none', 
+              color: 'var(--text-primary)',
+              width: '24px',
+              height: '24px',
+              borderRadius: 'var(--radius-full)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <Plus size={16} />
+          </button>
         </div>
         
         {conversations.length === 0 ? (
@@ -140,6 +166,8 @@ const Sidebar: React.FC = () => {
           })
         )}
       </div>
+
+      <NewChatModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

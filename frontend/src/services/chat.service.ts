@@ -7,6 +7,11 @@ export const chatService = {
     return response.data.conversations;
   },
 
+  createConversation: async (targetUserId: string): Promise<Conversation> => {
+    const response = await api.post<{conversation: Conversation}>('/conversations', { targetUserId });
+    return response.data.conversation;
+  },
+
   getMessages: async (conversationId: string): Promise<Message[]> => {
     const response = await api.get<{messages: Message[]}>(`/conversations/${conversationId}/messages`);
     // Messages from backend are ordered by createdAt desc for pagination, 
