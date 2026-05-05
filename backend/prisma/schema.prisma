@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  name          String
+  avatarUrl     String?
+  googleId      String?      @unique
+  status        UserStatus   @default(OFFLINE)
+  lastSeen      DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  memberships   Membership[]
+  messages      Message[]
+  readReceipts  ReadReceipt[]
+}
+
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  AWAY
+  BUSY
+}
+
+model Conversation {
+  id            String           @id @default(uuid())
+  type          ConversationType
+  name          String?          // Null for 1:1, required for Groups
+  avatarUrl     String?          
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt // Updated upon new message for sorting
+
+  memberships   Membership[]
+  messages      Message[]
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+
+// Junction table mapping Users to Conversations
+model Membership {
+  id             String       @id @default(uuid())
+  userId         String
+  conversationId String
+  role           MemberRole   @default(MEMBER)
+  joinedAt       DateTime     @default(now())
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId]) // Prevent duplicate memberships
+  @@index([userId])
+  @@index([conversationId])
+}
+
+enum MemberRole {
+  ADMIN
+  MEMBER
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String       @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  isDeleted      Boolean      @default(false)
+  
+  senderId       String
+  conversationId String
+
+  sender         User         @relation(fields: [senderId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  readReceipts   ReadReceipt[]
+
+  // Optimize querying messages for a conversation, ordered by time
+  @@index([conversationId, createdAt]) 
+}
+
+model ReadReceipt {
+  id             String       @id @default(uuid())
+  messageId      String
+  userId         String
+  readAt         DateTime     @default(now())
+
+  message        Message      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+}
